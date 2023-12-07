@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"
-import { getDatabase, ref, push, onValue} from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"
+import { getDatabase, ref, push, onValue, remove} from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"
 
 const appSettings = {
     databaseURL: "https://playground-56817-default-rtdb.firebaseio.com/"
@@ -14,23 +14,29 @@ const addButtonEl = document.getElementById("add-button")
 const shoppingListEl = document.getElementById("shopping-list")
 
 addButtonEl.addEventListener("click", function() {
-    let inputValue = inputFieldEl.value
+    if(inputFieldEl.value ===""){
+    }else{
+            let inputValue = inputFieldEl.value
     push(shoppingListInDB, inputValue)
     clearInputFieldEl()
+    }
 })
 
 onValue(shoppingListInDB, function(snapshot){
-    let itemsArray = Object.entries(snapshot.val())
-    //Object.entries/ keys/ values
 
-    clearShoppingEl() //refractor to function
-
-    for(let i = 0; i < itemsArray.length; i++){
-        let currentItem = itemsArray[i]
-        let currentItemID = currentItem[0]
-        let currentItemValue = currentItem[1]
-        appendItemToShoppingListEl(currentItem)
-    } 
+    if (snapshot.exists()){
+        let itemsArray = Object.entries(snapshot.val())
+        //Object.entries/ keys/ values
+        clearShoppingEl() //refractor to function
+        for(let i = 0; i < itemsArray.length; i++){
+            let currentItem = itemsArray[i]
+            let currentItemID = currentItem[0]
+            let currentItemValue = currentItem[1]
+            appendItemToShoppingListEl(currentItem)
+        } 
+    }else {
+        shoppingListEl.innerHTML = "No item here...yet"
+    }
 })
 
 function clearShoppingEl(){
@@ -50,8 +56,9 @@ function appendItemToShoppingListEl(item) {
 
     newEl.textContent = itemValue
 
-    newEl.addEventListener("click",function(){
+    newEl.addEventListener("click", function() {
         let exactLocationOfItemInDB = ref(database, `shoppingList/${itemID}`)
+        
         remove(exactLocationOfItemInDB)
     })
 
